@@ -1,3 +1,10 @@
+## Diagrama Relacional do Banco de Dados
+
+Abaixo está o diagrama relacional do banco de dados utilizado pela aplicação, mostrando as entidades principais e seus relacionamentos.
+
+![Diagrama Relacional](imgs/image.png)
+
+
 ## Seed do banco de dados para teste
 
 Após iniciar o servidor, podes popular a base de dados com os concertos da temporada e os seus respectivos templates de notificação utilizando os comandos `curl` abaixo.
