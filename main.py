@@ -1,10 +1,13 @@
 from fastapi import FastAPI
-from routers import concert, message, telegram, user
+from database import engine, Base
+import models
+from routers import concert, user, message, telegram
 
-app = FastAPI(title="API", version="1.0.0")
+Base.metadata.create_all(bind=engine)
 
-# Acopla as rotas
+app = FastAPI(title="SHOW UP - API OSESP", version="1.0.0")
+
 app.include_router(concert.router)
+app.include_router(user.router)
 app.include_router(message.router)
 app.include_router(telegram.router)
-app.include_router(user.router)

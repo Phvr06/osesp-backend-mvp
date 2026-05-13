@@ -1,43 +1,39 @@
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-from fastapi import APIRouter, HTTPException
+from sqlalchemy.orm import Session
 from schemas.message import MessageCreate, MessageResponse
-import mock_db
+from database import get_db
+import models
 
 router = APIRouter(prefix="/message", tags=["Mensagens"])
 
+def _user_exists(user_id: int, db: Session) -> bool:
+    return db.query(models.UsuarioDB).filter(models.UsuarioDB.id == user_id).first() is not None
 
-def _user_exists(user_id: int) -> bool:
-    return any(user["id"] == user_id for user in mock_db.users_db)
-
-
-def _concert_exists(concert_id: int) -> bool:
-    return any(concert["id"] == concert_id for concert in mock_db.concerts_db)
-
+def _template_exists(template_id: int, db: Session) -> bool:
+    return db.query(models.TemplateDB).filter(models.TemplateDB.id == template_id).first() is not None
 
 @router.post("/", response_model=MessageResponse)
-def create_message(message: MessageCreate):
-    if message.user_id is not None and not _user_exists(message.user_id):
+def create_message(message: MessageCreate, db: Session = Depends(get_db)):
+    if not _user_exists(message.usuario_id, db):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
 
-    if message.concert_id is not None and not _concert_exists(message.concert_id):
-        raise HTTPException(status_code=404, detail="Concerto não encontrado")
+    if not _template_exists(message.template_id, db):
+        raise HTTPException(status_code=404, detail="Template não encontrado")
 
-    new_message = message.model_dump()
-    new_message["id"] = mock_db.message_id_counter
-    mock_db.message_id_counter += 1
-
-    mock_db.messages_db.append(new_message)
+    new_message = models.MensagemDB(**message.model_dump())
+    db.add(new_message)
+    db.commit()
+    db.refresh(new_message)
     return new_message
 
-
 @router.get("/", response_model=List[MessageResponse])
-def read_messages(skip: int = 0, limit: int = 100):
-    return mock_db.messages_db[skip : skip + limit]
-
+def read_messages(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.MensagemDB).offset(skip).limit(limit).all()
 
 @router.get("/{message_id}", response_model=MessageResponse)
-def read_message(message_id: int):
-    for message in mock_db.messages_db:
-        if message["id"] == message_id:
-            return message
-    raise HTTPException(status_code=404, detail="Mensagem não encontrada")
+def read_message(message_id: int, db: Session = Depends(get_db)):
+    message = db.query(models.MensagemDB).filter(models.MensagemDB.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="Mensagem não encontrada")
+    return message

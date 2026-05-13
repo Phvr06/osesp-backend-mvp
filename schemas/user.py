@@ -1,18 +1,9 @@
-from pydantic import BaseModel, Field, field_validator
-import re
+from pydantic import BaseModel, Field
 
 class UserBase(BaseModel):
-    name: str = Field(..., min_length=2, max_length=100, description="Nome do usuário")
-    phone: str = Field(..., description="Telefone com DDD (11 a 99) + 9 + 8 dígitos")
-    @field_validator('phone')
-    @classmethod
-    def validate_phone(cls, v: str) -> str:
-        v = re.sub(r'\D', '', v)
-    
-        if not re.match(r"^[1-9]{2}9\d{8}$", v):
-            raise ValueError("Telefone inválido.")
-        
-        return v
+    nome: str = Field(..., min_length=2, max_length=100)
+    contato: str = Field(..., description="Telefone ou Email válido")
+    tipo: str = Field(..., description="Ex: assinante, avulso, cortesia")
 
 class UserCreate(UserBase):
     pass

@@ -1,18 +1,18 @@
 from pydantic import BaseModel, Field
-
+from datetime import datetime
 
 class MessageBase(BaseModel):
-    content: str = Field(..., min_length=1, max_length=1000)
-    user_id: int | None = None
-    concert_id: int | None = None
-
+    usuario_id: int
+    template_id: int
+    data_envio: datetime
+    provider: str = Field(..., description="Ex: wpp, telegram")
+    status: str = Field(default="pendente")
 
 class MessageCreate(MessageBase):
     pass
 
-
 class MessageResponse(MessageBase):
     id: int
-
+    
     class Config:
         from_attributes = True

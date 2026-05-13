@@ -1,16 +1,11 @@
-from pydantic import BaseModel, Field, field_validator
-from datetime import datetime, timezone
+from pydantic import BaseModel, Field
+from datetime import datetime
 
 class ConcertBase(BaseModel):
-    title: str = Field(..., min_length=3, max_length=150)
-    date: datetime
-
-    @field_validator('date')
-    @classmethod
-    def validate_date_future(cls, v: datetime) -> datetime:
-        if v.replace(tzinfo=None) < datetime.now().replace(tzinfo=None):
-            raise ValueError("A data do concerto deve estar no futuro.")
-        return v
+    id_site: int = Field(..., description="ID do programa no site da OSESP")
+    nome: str = Field(..., min_length=3, max_length=150)
+    data: datetime
+    local: str = Field(default="Sala São Paulo", min_length=3)
 
 class ConcertCreate(ConcertBase):
     pass
