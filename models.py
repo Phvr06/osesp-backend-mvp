@@ -6,7 +6,7 @@ class ConcertoDB(Base):
     __tablename__ = "concertos"
     
     id = Column(Integer, primary_key=True, index=True) # ID interno (sessão específica)
-    id_oficial = Column(Integer, index=True, nullable=False) # ID do site da OSESP
+    id_site = Column(Integer, index=True, nullable=False) # ID do site da OSESP
     nome = Column(String, index=True, nullable=False)
     data = Column(DateTime, nullable=False)
     local = Column(String, default="Sala São Paulo")
